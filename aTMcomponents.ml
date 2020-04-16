@@ -1,5 +1,4 @@
 
-open Scanf
 type id = int
 
 (* Possible actions that an ATM customer can perform *)
@@ -38,16 +37,17 @@ let acquire_act () : action =
 
 let get_balance (i : id) : int =
 	match List.filter (fun x -> !x.id = i) !accts with
-	| [] -> raise (Failure "invalid id")
+	| [] -> raise Not_found
 	| h :: _ -> !h.balance;;
 
 let get_name (i : id) : string =
 	match List.filter (fun x -> !x.id = i) !accts with
-	| [] -> raise (Failure "invalid id")
+	| [] -> raise Not_found
 	| h :: _ -> !h.name;;
 
 let update_balance (i : id) (money : int): unit =
-	List.iter (fun x -> if (!x).id = i then x :=  {!x with balance = money} else ()) !accts;;
+	if (List.fold_left (fun x y-> if (!y).id = i then (y :=  {!y with balance = money}; true) else x) false !accts) then
+	() else raise Not_found;;
 
 let present_message (s: string) : unit =
 	print_string (s ^ "\n");;
